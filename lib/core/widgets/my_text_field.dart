@@ -36,7 +36,7 @@ class _MyTextFieldState extends State<MyTextField> {
       controller: widget.controller,
       keyboardType: widget.keyboardType,
       obscureText: _obscure,
-      cursorColor: AppColor().mainColor,
+      cursorColor: AppColor.white20,
       cursorHeight: width * 0.056,
       cursorWidth: width * 0.005,
       autofocus: false,
@@ -44,7 +44,7 @@ class _MyTextFieldState extends State<MyTextField> {
       textInputAction: TextInputAction.next,
       style: TextStyle(
         fontFamily: "AnekLatin",
-        color: AppColor().mainColor,
+        color: AppColor.white60,
         fontSize: width * 0.037,
       ),
       decoration: InputDecoration(
@@ -52,26 +52,24 @@ class _MyTextFieldState extends State<MyTextField> {
         floatingLabelBehavior: FloatingLabelBehavior.never,
         labelStyle: TextStyle(
           fontFamily: "AnekLatin",
-          color: AppColor().mainColor,
+          color: AppColor.white60,
           fontSize: width * 0.037,
         ),
         contentPadding: EdgeInsets.symmetric(
-          horizontal: width * 0.037,
-          vertical: width * 0.034,
+          horizontal: width * 0.02,
+          vertical: width * 0.03,
         ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(width * 0.04),
-          borderSide: BorderSide(color: AppColor().mainColor),
+        enabledBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColor.white20, width: 1),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(width * 0.012),
-          borderSide: BorderSide(color: AppColor().mainColor),
+        focusedBorder: UnderlineInputBorder(
+          borderSide: BorderSide(color: AppColor.white40, width: 1),
         ),
         suffixIcon: widget.obscureText
             ? IconButton(
                 icon: Icon(
                   _obscure ? Icons.visibility_off : Icons.visibility,
-                  color: AppColor().mainColor,
+                  color: AppColor.white60,
                   size: width * 0.056,
                 ),
                 onPressed: () {

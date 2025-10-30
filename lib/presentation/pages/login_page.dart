@@ -23,7 +23,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   void initState() {
-    _emailController.text = "tolgads0101@gmail.com";
+    _emailController.text = "berfintugal@gmail.com";
     _passwordController.text = "1234zxcv";
     super.initState();
   }
@@ -50,118 +50,157 @@ class _LoginPageState extends State<LoginPage> {
 
     return Scaffold(
       body: GradientBackground(
-        child: Column(
+        linearGradient: AppColor.backgroundGradient,
+
+        child: Padding(
+          padding: EdgeInsets.only(
+            top: height * 0.04,
+            left: width * 0.03,
+            right: width * 0.03,
+          ),
+          child: SafeArea(
+            child: Column(
+              children: [
+                Container(
+                  width: width * 0.25,
+                  height: width * 0.25,
+                  decoration: BoxDecoration(
+                    gradient: AppColor.logoGradient,
+                    borderRadius: BorderRadius.circular(width * 0.05),
+                  ),
+                  child: Icon(
+                    Icons.location_on_outlined,
+                    color: Colors.white,
+                    size: width * 0.15,
+                  ),
+                ),
+
+                SizedBox(height: height * 0.03),
+
+                AppText(
+                  text: "Near Voice",
+                  textFontWeight: FontWeight.w600,
+                  textFontSize: width * 0.1,
+                ),
+
+                SizedBox(height: height * 0.015),
+
+                AppText(
+                  text: "Yaknındaki kayıp sesi bul",
+                  textFontWeight: FontWeight.w300,
+                  textFontSize: width * 0.036,
+                  textColor: AppColor.white60,
+                ),
+
+                SizedBox(height: height * 0.03),
+
+                MyTextField(label: "Email", controller: _emailController),
+
+                SizedBox(height: height * 0.010),
+
+                MyTextField(
+                  label: "Password",
+                  controller: _passwordController,
+                  obscureText: true,
+                ),
+
+                SizedBox(height: height * 0.04),
+
+                ForgotPasswordButton(),
+
+                SizedBox(height: height * 0.04),
+
+                SignButton(text: "Giriş Yap", onTap: login),
+
+                SizedBox(height: height * 0.07),
+
+                Or(),
+
+                SizedBox(height: height * 0.07),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    LoginPlatformButton(
+                      onTap: () {},
+                      text: 'Google',
+                      imagePath: 'assets/google_logo.png',
+                    ),
+
+                    LoginPlatformButton(
+                      onTap: () {},
+                      text: 'Apple',
+                      imagePath: 'assets/apple_logo.png',
+                    ),
+                  ],
+                ),
+
+                Expanded(child: SizedBox()),
+
+                SignUpNavigateButton(),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class Or extends StatelessWidget {
+  const Or({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(color: AppColor.white20, width: width * 0.4, height: 1),
+        AppText(text: "veya", textColor: AppColor.white40),
+        Container(color: AppColor.white20, width: width * 0.4, height: 1),
+      ],
+    );
+  }
+}
+
+class LoginPlatformButton extends StatelessWidget {
+  const LoginPlatformButton({
+    super.key,
+    required this.onTap,
+    required this.text,
+    required this.imagePath,
+  });
+
+  final GestureTapCallback onTap;
+  final String text;
+  final String imagePath;
+  @override
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+    double height = MediaQuery.of(context).size.height;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: width * 0.45,
+        height: height * 0.064,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(width * 0.04),
+          color: Colors.transparent,
+          border: Border.all(color: AppColor.white20),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            SizedBox(height: height * 0.10),
-            Image.asset(
-              "assets/near_voice_logo_purple2.png",
-              height: height * 0.1,
+            Image.asset(imagePath, width: width * 0.05),
+            SizedBox(width: width * 0.02),
+            AppText(
+              text: text,
+              textFontSize: width * 0.04,
+              textFontWeight: FontWeight.w500,
             ),
-
-            SizedBox(height: height * 0.08),
-
-            MyTextField(label: "Email", controller: _emailController),
-
-            SizedBox(height: height * 0.010),
-
-            MyTextField(
-              label: "Password",
-              controller: _passwordController,
-              obscureText: true,
-            ),
-
-            SizedBox(height: height * 0.020),
-
-            ForgotPasswordButton(),
-
-            SizedBox(height: height * 0.040),
-
-            SignButton(
-              buttonWidget: AppText(
-                text: "Sign In",
-                textFontSize: width * 0.05,
-                textFontWeight: FontWeight.w500,
-              ),
-              onTap: login,
-              buttonColor: AppColor().mainColor,
-            ),
-            SizedBox(height: height * 0.010),
-            SignButton(
-              buttonWidget: Stack(
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AppText(
-                          text: "Sign in with Google",
-                          textColor: AppColor().mainColor,
-                          textFontSize: width * 0.05,
-                          textFontWeight: FontWeight.w500,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.all(width * 0.034),
-                          child: Image.asset("assets/google_logo.png"),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              onTap: login,
-              buttonColor: Colors.white,
-            ),
-            SizedBox(height: height * 0.010),
-            SignButton(
-              buttonWidget: Stack(
-                children: [
-                  Align(
-                    alignment: Alignment.center,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        AppText(
-                          text: "Sign in with Apple",
-                          textColor: AppColor().mainColor,
-                          textFontSize: width * 0.05,
-                          textFontWeight: FontWeight.w500,
-                        ),
-                      ],
-                    ),
-                  ),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: width * 0.038,
-                            vertical: width * 0.03,
-                          ),
-                          child: Image.asset("assets/apple_logo.png"),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-              onTap: login,
-              buttonColor: Colors.white,
-            ),
-
-            Expanded(child: SizedBox()),
-
-            SignUpNavigateButton(),
           ],
         ),
       ),
@@ -188,16 +227,16 @@ class SignUpNavigateButton extends StatelessWidget {
           child: Row(
             children: [
               AppText(
-                text: "Don't have an account?",
+                text: "Hesabınız yok mu?",
                 textFontWeight: FontWeight.w500,
                 textFontSize: width * 0.034,
-                textColor: Colors.white,
+                textColor: AppColor.white40,
               ),
               AppText(
-                text: " Sign Up",
+                text: " Kayıt Ol",
                 textFontWeight: FontWeight.w600,
                 textFontSize: width * 0.034,
-                textColor: Colors.white,
+                textColor: AppColor.purple500,
               ),
             ],
           ),
@@ -227,10 +266,10 @@ class ForgotPasswordButton extends StatelessWidget {
             );
           },
           child: AppText(
-            text: "Forgot Password?",
-            textFontWeight: FontWeight.w600,
+            text: "Şifremi Unuttum?",
+            textFontWeight: FontWeight.w500,
             textFontSize: width * 0.034,
-            textColor: AppColor().mainColor,
+            textColor: AppColor.purple500,
           ),
         ),
       ],

@@ -5,7 +5,6 @@ class UserService {
 
   /// 🟢 Yeni kullanıcı ekle
   Future<void> insertUser({
-    // ❌ 'id' parametresi kaldırıldı. Veritabanı bu değeri otomatik üretecek.
     required String username,
     required String birthDate,
     required String gender,
@@ -27,6 +26,19 @@ class UserService {
     });
 
     print('insertUser → $response');
+  }
+
+  Future<Map<String, dynamic>?> getCurrentUserDetails() async {
+    final authUserId = Supabase.instance.client.auth.currentUser?.id;
+    if (authUserId == null) return null;
+
+    final response = await Supabase.instance.client
+        .from('user')
+        .select()
+        .eq('auth_user_id', authUserId)
+        .maybeSingle(); // Tek kullanıcı alıyoruz
+
+    return response;
   }
 
   /// 🔵 Tüm kullanıcıları getir
@@ -51,7 +63,7 @@ class UserService {
     double? longitude,
   }) async {
     final updateData = {
-      if (username != null) 'username': username,
+      if (username != null) 'user_name': username,
       if (gender != null) 'gender': gender,
       if (latitude != null) 'latitude': latitude,
       if (longitude != null) 'longitude': longitude,

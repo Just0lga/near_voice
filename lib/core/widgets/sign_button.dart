@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:near_voice/core/constants/app_color.dart';
+import 'package:near_voice/core/widgets/app_text.dart';
 
 class SignButton extends StatelessWidget {
-  const SignButton({
-    super.key,
-    required this.buttonWidget,
-    required this.onTap,
-    required this.buttonColor,
-  });
+  const SignButton({super.key, required this.text, required this.onTap});
 
-  final Widget buttonWidget;
+  final String text;
   final GestureTapCallback onTap;
-  final Color buttonColor;
 
   @override
   Widget build(BuildContext context) {
@@ -23,10 +19,14 @@ class SignButton extends StatelessWidget {
         width: width,
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: buttonColor,
           borderRadius: BorderRadius.circular(width * 0.04),
+          gradient: AppColor.logoGradient,
         ),
-        child: buttonWidget,
+        child: AppText(
+          text: text,
+          textFontSize: width * 0.04,
+          textFontWeight: FontWeight.w500,
+        ),
       ),
     );
   }

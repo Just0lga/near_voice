@@ -1,12 +1,8 @@
-import 'dart:ui';
 import 'package:near_voice/core/constants/app_color.dart';
 import 'package:near_voice/core/helpers/auth_service.dart';
 import 'package:near_voice/core/widgets/app_text.dart';
 import 'package:flutter/material.dart';
-import 'package:near_voice/core/widgets/background_image.dart';
 import 'package:near_voice/core/widgets/gradient_background.dart';
-import 'package:near_voice/presentation/pages/discover_page.dart';
-import 'package:near_voice/presentation/pages/privacy_policy_page.dart';
 import 'package:near_voice/presentation/pages/profile_page.dart';
 import 'package:near_voice/presentation/pages/settings_page.dart';
 
@@ -20,7 +16,13 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   final authService = AuthService();
 
-  bool isPressed = false; // Buton basılı mı?
+  int selectedIndex = 0;
+
+  void onItemTapped(int index) {
+    setState(() {
+      selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -33,155 +35,223 @@ class _MainPageState extends State<MainPage> {
     print("Bearer $currentToken");
 
     return Scaffold(
-      backgroundColor: Colors.red,
       body: GradientBackground(
-        child: Column(
-          children: [
-            // Header
-            Stack(
-              children: [
-                Container(
-                  height: width * 0.1,
-                  color: Colors.transparent,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      AppText(
-                        text: "Hoşgeldiniz",
-                        textFontSize: width * 0.07,
-                        textFontWeight: FontWeight.w500,
-                        textColor: AppColor().mainColor,
-                      ),
-                    ],
+        linearGradient: AppColor.backgroundGradient,
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              // 🔹 Header
+              Container(
+                width: width,
+                decoration: BoxDecoration(
+                  color: AppColor.white5,
+                  border: Border(bottom: BorderSide(color: AppColor.white10)),
+                ),
+                alignment: Alignment.bottomCenter,
+                child: SafeArea(
+                  bottom: false,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: width * 0.03),
+                    child: Row(
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                SizedBox(width: width * 0.01),
+                                Icon(
+                                  Icons.location_on_outlined,
+                                  color: AppColor.purple800,
+                                  size: width * 0.07,
+                                ),
+                                AppText(
+                                  text: "Near Voice",
+                                  textFontSize: width * 0.05,
+                                  textFontWeight: FontWeight.w600,
+                                ),
+                              ],
+                            ),
+                            SizedBox(height: width * 0.01),
+                            Row(
+                              children: [
+                                SizedBox(width: width * 0.03),
+                                AppText(
+                                  text: "5 kişi yakınlarda",
+                                  textFontSize: width * 0.03,
+                                  textFontWeight: FontWeight.w500,
+                                  textColor: AppColor.white60,
+                                ),
+                              ],
+                            ),
+                          ],
+                        ),
+
+                        Expanded(child: SizedBox()),
+
+                        Container(
+                          width: width * 0.1,
+                          height: width * 0.1,
+                          decoration: BoxDecoration(
+                            color: AppColor.white10,
+                            borderRadius: BorderRadius.circular(width),
+                            border: Border.all(color: AppColor.white10),
+                          ),
+                          child: Icon(
+                            Icons.near_me_outlined,
+                            color: AppColor.white60,
+                          ),
+                        ),
+                        SizedBox(width: width * 0.03),
+                      ],
+                    ),
                   ),
                 ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    GestureDetector(
-                      onTap: () {
-                        Navigator.pop(context);
-                      },
-                      child: Container(
-                        width: height * 0.05,
-                        decoration: BoxDecoration(
-                          color: Colors.black,
-                          borderRadius: BorderRadius.circular(width * 0.05),
+              ),
+
+              // 🟣 Body
+              Expanded(
+                child: Padding(
+                  padding: EdgeInsets.symmetric(
+                    vertical: height * 0.02,
+                    horizontal: width * 0.03,
+                  ),
+                  child: SingleChildScrollView(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ActiveInfoContainer(
+                              title: "Şu an aktif",
+                              subtitle: "12",
+                            ),
+                            ActiveInfoContainer(
+                              title: "Yakınlarda",
+                              subtitle: "5",
+                            ),
+                          ],
                         ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadiusGeometry.circular(
-                            width * 0.04,
-                          ),
-                          child: Image.asset("assets/profile.png"),
-                        ),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-              ],
-            ),
-            SizedBox(height: height * 0.04),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Column(
-                  children: [
-                    MainPageButton(
-                      containerHeight: height * 0.2,
-                      contaierColor: Color(0xFF6E3BAE),
-                      text: "Yeni İnsanlar Keşfet",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DiscoverPage(),
-                          ),
-                        );
-                        print("Glass Button tıklandı!");
-                      },
-                    ),
-                    SizedBox(height: width * 0.04),
-                    MainPageButton(
-                      containerHeight: height * 0.4,
-                      contaierColor: Color(0xFFB38BFA),
-                      text: "boş",
-                      onTap: () {},
-                    ),
-                    SizedBox(height: width * 0.04),
-                    MainPageButton(
-                      containerHeight: height * 0.1,
-                      contaierColor: Color.fromARGB(255, 110, 77, 151),
-                      text: "Ayarlar",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => SettingsPage(),
-                          ),
-                        );
-                        print("Glass Button tıklandı!");
-                      },
-                    ),
-                  ],
-                ),
-
-                Column(
-                  children: [
-                    MainPageButton(
-                      containerHeight: height * 0.1,
-                      contaierColor: Color(0xFFD1A3FF),
-                      text: "Profil",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProfilePage(),
-                          ),
-                        );
-                        print("Glass Button tıklandı!");
-                      },
-                    ),
-                    SizedBox(height: width * 0.04),
-                    MainPageButton(
-                      containerHeight: height * 0.3,
-                      contaierColor: Color.fromARGB(255, 159, 104, 214),
-                      text: "Sohbetlerim",
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ProfilePage(),
-                          ),
-                        );
-                        print("Glass Button tıklandı!");
-                      },
-                    ),
-                    SizedBox(height: width * 0.04),
-                    MainPageButton(
-                      containerHeight: height * 0.3,
-                      contaierColor: Color.fromARGB(255, 108, 31, 202),
-                      text: "Boş",
-                      onTap: () {},
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            Expanded(child: SizedBox()),
-
-            SizedBox(height: height * 0.005),
-
-            Center(
-              child: Text(
-                "© 2025 Justolga",
-                style: TextStyle(
-                  color: Colors.white.withOpacity(0.4),
-                  fontSize: width * 0.032,
+                  ),
                 ),
               ),
+
+              Container(
+                width: width,
+                height: height * 0.12,
+                decoration: BoxDecoration(
+                  color: AppColor.white5,
+                  border: Border(top: BorderSide(color: AppColor.white10)),
+                ),
+                alignment: Alignment.bottomCenter,
+                child: SafeArea(
+                  top: false,
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(horizontal: width * 0.02),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        NavigationBarItem(
+                          onTap: () => onItemTapped(0),
+                          iconData: Icons.map,
+                          text: "Harita",
+                          isSelected: selectedIndex == 0,
+                        ),
+                        NavigationBarItem(
+                          onTap: () => onItemTapped(1),
+                          iconData: Icons.chat_bubble_outline,
+                          text: "Sohbet",
+                          isSelected: selectedIndex == 1,
+                        ),
+                        NavigationBarItem(
+                          onTap: () {
+                            () => onItemTapped(2);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProfilePage(),
+                              ),
+                            );
+                          },
+                          iconData: Icons.person_outline,
+                          text: "Profil",
+                          isSelected: selectedIndex == 2,
+                        ),
+
+                        NavigationBarItem(
+                          onTap: () {
+                            onItemTapped(3);
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SettingsPage(),
+                              ),
+                            );
+                          },
+                          iconData: Icons.settings_outlined,
+                          text: "Ayarlar",
+                          isSelected: selectedIndex == 3,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class NavigationBarItem extends StatelessWidget {
+  const NavigationBarItem({
+    super.key,
+    required this.onTap,
+    required this.iconData,
+    required this.text,
+    required this.isSelected,
+  });
+
+  final GestureTapCallback onTap;
+  final IconData iconData;
+  final String text;
+  final bool isSelected;
+
+  @override
+  Widget build(BuildContext context) {
+    double width = MediaQuery.of(context).size.width;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        width: width * 0.16,
+        height: width * 0.16,
+        decoration: BoxDecoration(
+          gradient: isSelected ? AppColor.logoGradient : null,
+          borderRadius: BorderRadius.circular(width * 0.05),
+        ),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              iconData,
+              color: isSelected ? Colors.white : AppColor.white60,
+              size: width * 0.06,
+            ),
+            SizedBox(height: width * 0.01),
+            AppText(
+              text: text,
+              textColor: isSelected ? Colors.white : AppColor.white60,
+              textFontSize: width * 0.03,
+              textFontWeight: FontWeight.w500,
             ),
           ],
         ),
@@ -190,44 +260,46 @@ class _MainPageState extends State<MainPage> {
   }
 }
 
-class MainPageButton extends StatelessWidget {
-  const MainPageButton({
+class ActiveInfoContainer extends StatelessWidget {
+  const ActiveInfoContainer({
     super.key,
-    required this.containerHeight,
-    required this.contaierColor,
-    required this.text,
-    this.textColor = Colors.white,
-    required this.onTap,
+    required this.title,
+    required this.subtitle,
   });
 
-  final double containerHeight;
-  final Color contaierColor;
-  final String text;
-  final Color textColor;
-  final GestureTapCallback onTap;
+  final String title;
+  final String subtitle;
 
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
-
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        width: width * 0.44,
-        height: containerHeight,
-        decoration: BoxDecoration(
-          color: contaierColor,
-          borderRadius: BorderRadius.circular(width * 0.02),
-        ),
-        alignment: Alignment.center,
-        child: AppText(
-          text: text,
-          textColor: textColor,
-          textFontWeight: FontWeight.w500,
-          textFontSize: width * 0.05,
-          textAlign: TextAlign.center,
-        ),
+    return Container(
+      width: width * 0.45,
+      height: height * 0.09,
+      padding: EdgeInsets.symmetric(horizontal: width * 0.02),
+      decoration: BoxDecoration(
+        color: AppColor.white5,
+        border: Border.all(color: AppColor.white10),
+        borderRadius: BorderRadius.circular(width * 0.03),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          AppText(
+            text: title,
+            textFontSize: width * 0.03,
+            textFontWeight: FontWeight.w500,
+            textColor: AppColor.white60,
+          ),
+          SizedBox(height: width * 0.02),
+          AppText(
+            text: subtitle,
+            textFontSize: width * 0.05,
+            textFontWeight: FontWeight.w600,
+          ),
+        ],
       ),
     );
   }

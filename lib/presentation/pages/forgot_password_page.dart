@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:near_voice/core/constants/app_color.dart';
 import 'package:near_voice/core/widgets/app_text.dart';
 import 'package:near_voice/core/helpers/auth_service.dart';
-import 'package:near_voice/core/widgets/back_button_and_right_button.dart';
 import 'package:near_voice/core/widgets/gradient_background.dart';
 import 'package:near_voice/core/widgets/my_text_field.dart';
 import 'package:near_voice/core/widgets/sign_button.dart';
@@ -73,45 +72,100 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
 
     return Scaffold(
       body: GradientBackground(
-        child: Column(
-          children: [
-            BackButtonAndRightButton(),
-            SizedBox(height: height * 0.10),
-            Image.asset(
-              "assets/near_voice_logo_purple2.png",
-              height: height * 0.1,
-            ),
+        linearGradient: AppColor.backgroundGradient,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: width * 0.03),
 
-            SizedBox(height: height * 0.10),
-
-            // Email
-            MyTextField(label: "Email", controller: _emailController),
-
-            SizedBox(height: height * 0.01),
-
-            // Send Reset Link button
-            isLoading
-                ? const CircularProgressIndicator(color: Colors.white)
-                : SignButton(
-                    buttonWidget: AppText(
-                      text: "Send Reset Link",
-
-                      textColor: Colors.white,
-                      textFontSize: width * 0.05,
-                      textFontWeight: FontWeight.w500,
-                    ),
-                    onTap: sendResetLink,
-                    buttonColor: AppColor().mainColor,
+          child: SafeArea(
+            child: Column(
+              children: [
+                Container(
+                  height: height * 0.04,
+                  child: Row(
+                    children: [
+                      SizedBox(width: width * 0.02),
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.pop(context);
+                        },
+                        child: Container(
+                          color: Colors.transparent,
+                          padding: EdgeInsets.all(4),
+                          child: Icon(
+                            Icons.arrow_back_ios_new,
+                            color: AppColor.white60,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-            Expanded(child: SizedBox()),
-            AppText(
-              text:
-                  "You will take an e-mail about changing password from nearVoice@gmail.com",
-              textAlign: TextAlign.center,
-              textHeight: 1.3,
-              textFontSize: width * 0.028,
+                ),
+
+                Container(
+                  width: width * 0.25,
+                  height: width * 0.25,
+                  decoration: BoxDecoration(
+                    gradient: AppColor.logoGradient,
+                    borderRadius: BorderRadius.circular(width * 0.05),
+                  ),
+                  child: Icon(
+                    Icons.location_on_outlined,
+                    color: Colors.white,
+                    size: width * 0.15,
+                  ),
+                ),
+
+                SizedBox(height: height * 0.03),
+
+                AppText(
+                  text: "Near Voice",
+                  textFontWeight: FontWeight.w600,
+                  textFontSize: width * 0.1,
+                ),
+
+                SizedBox(height: height * 0.08),
+
+                // Email
+                MyTextField(label: "Email", controller: _emailController),
+
+                SizedBox(height: height * 0.03),
+
+                // Send Reset Link button
+                isLoading
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : SignButton(
+                        text: "Şifre yenileme linki gönder",
+                        onTap: sendResetLink,
+                      ),
+                Expanded(child: SizedBox()),
+
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    AppText(
+                      text: "nearVoice@gmail.com ",
+                      textFontWeight: FontWeight.w500,
+                      textFontSize: width * 0.034,
+                      textColor: AppColor.purple500,
+                    ),
+                    AppText(
+                      text: " tarafından bir şifre",
+                      textFontWeight: FontWeight.w600,
+                      textFontSize: width * 0.034,
+                      textColor: AppColor.white40,
+                    ),
+                  ],
+                ),
+                SizedBox(height: height * 0.005),
+                AppText(
+                  text: " değiştirme linki alacaksınız",
+                  textFontWeight: FontWeight.w600,
+                  textFontSize: width * 0.034,
+                  textColor: AppColor.white40,
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
