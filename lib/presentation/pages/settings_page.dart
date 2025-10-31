@@ -5,6 +5,8 @@ import 'package:near_voice/core/helpers/auth_service.dart';
 import 'package:near_voice/core/widgets/app_text.dart';
 import 'package:near_voice/core/widgets/gradient_background.dart';
 import 'package:near_voice/data/services/user_service.dart';
+import 'package:near_voice/presentation/pages/edit_max_distance_page.dart';
+import 'package:near_voice/presentation/pages/edit_range_of_age_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SettingsPage extends StatefulWidget {
@@ -189,7 +191,14 @@ class _SettingsPageState extends State<SettingsPage> {
                         iconData: Icons.location_on_outlined,
                         title: 'Uzaklık',
                         subtitle: userData?["max_distance"].toString() ?? "",
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditMaxDistancePage(),
+                            ),
+                          );
+                        },
                       ),
 
                       SettingsButton(
@@ -197,7 +206,14 @@ class _SettingsPageState extends State<SettingsPage> {
                         title: 'Yaş Aralığı',
                         subtitle:
                             "${userData?["min_age"].toString()} - ${userData?["max_age"].toString()}",
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => EditRangeOfAgePage(),
+                            ),
+                          );
+                        },
                       ),
 
                       SizedBox(height: height * 0.03),
