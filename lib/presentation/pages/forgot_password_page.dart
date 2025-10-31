@@ -30,7 +30,10 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
     final email = _emailController.text.trim();
     if (email.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: AppText(text: "Please enter your email")),
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: AppText(text: "Please enter your email"),
+        ),
       );
       return;
     }
@@ -45,6 +48,7 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
+            behavior: SnackBarBehavior.floating,
             content: AppText(text: "Password reset link sent to your email"),
           ),
         );
@@ -52,9 +56,12 @@ class _ForgotPasswordPageState extends State<ForgotPasswordPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: AppText(text: "Error: $e")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            content: AppText(text: "Error: $e"),
+          ),
+        );
       }
     } finally {
       if (mounted) {

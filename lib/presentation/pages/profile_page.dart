@@ -3,8 +3,10 @@ import 'package:near_voice/core/constants/app_color.dart';
 import 'package:near_voice/core/helpers/auth_gate.dart';
 import 'package:near_voice/core/widgets/app_text.dart';
 import 'package:near_voice/core/widgets/gradient_background.dart';
-import 'package:near_voice/data/model/services/user_service.dart';
-import 'package:near_voice/presentation/pages/profile_edit_page.dart';
+import 'package:near_voice/data/services/user_service.dart';
+import 'package:near_voice/presentation/pages/profile_about_edit_page.dart';
+import 'package:near_voice/presentation/pages/profile_interests_edit_page.dart';
+import 'package:near_voice/presentation/pages/profile_main_edit_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -17,13 +19,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic>? userData;
   bool isLoading = true;
-  final List<String> interests = [
-    "Futbol",
-    "Kitap Okuma",
-    "PC Oyunları",
-    "Basketbol",
-    "Gezme",
-  ];
 
   @override
   void initState() {
@@ -207,7 +202,7 @@ class _ProfilePageState extends State<ProfilePage> {
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(
-                                    builder: (context) => ProfileEditPage(),
+                                    builder: (context) => ProfileMainEditPage(),
                                   ),
                                 );
                               },
@@ -276,7 +271,17 @@ class _ProfilePageState extends State<ProfilePage> {
                               textFontSize: width * 0.035,
                               textHeight: 1,
                             ),
-                            EditButton(onTap: () {}),
+                            EditButton(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ProfileAboutEditPage(),
+                                  ),
+                                );
+                              },
+                            ),
                           ],
                         ),
 
@@ -294,11 +299,10 @@ class _ProfilePageState extends State<ProfilePage> {
                             borderRadius: BorderRadius.circular(width * 0.03),
                           ),
                           child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               AppText(
-                                text:
-                                    "lsIjoiYmVyIiwiZW1haWxfdmVyaWZpZWQiOnRydWUsImdlbmRlciI6IkthZMSxbiIsInBob25lX3ZlcmlmaWVkIjpmYWxzZSwicHJlZmVycmVkX2xhbmd1YWdlIjoidHIiLCJzdWIiOiJjMzAyODY4MS0w",
+                                text: "${userData?['about'] ?? '-'}",
                                 textHeight: 1.5,
                               ),
                             ],
@@ -315,7 +319,17 @@ class _ProfilePageState extends State<ProfilePage> {
                               textFontSize: width * 0.035,
                               textHeight: 1,
                             ),
-                            EditButton(onTap: () {}),
+                            EditButton(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) =>
+                                        ProfileInterestsEditPage(),
+                                  ),
+                                );
+                              },
+                            ),
                           ],
                         ),
 
@@ -334,7 +348,17 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
-                            children: [InterestsSection(interests: interests)],
+                            children: [
+                              InterestsSection(
+                                interests:
+                                    userData?['interests'] != null &&
+                                        userData!['interests'] != ''
+                                    ? (userData!['interests'] as String).split(
+                                        ',',
+                                      )
+                                    : [],
+                              ),
+                            ],
                           ),
                         ),
 
@@ -377,7 +401,7 @@ class InterestsSection extends StatelessWidget {
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          gradient: AppColor.logoGradient,
+          color: Colors.transparent,
         ),
         child: const Center(
           child: Text(

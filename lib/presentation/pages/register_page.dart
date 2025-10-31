@@ -8,7 +8,7 @@ import 'package:near_voice/core/widgets/gradient_background.dart';
 import 'package:near_voice/core/widgets/my_text_field.dart';
 import 'package:near_voice/core/widgets/sign_button.dart';
 import 'package:intl/intl.dart';
-import 'package:near_voice/data/model/services/user_service.dart';
+import 'package:near_voice/data/services/user_service.dart';
 import 'package:near_voice/presentation/pages/privacy_policy_page.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -101,7 +101,10 @@ class _RegisterPageState extends State<RegisterPage> {
         _birthDate == null ||
         _selectedGender == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Lütfen tüm alanları doldurun.")),
+        const SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text("Lütfen tüm alanları doldurun."),
+        ),
       );
       setState(() => _isLoading = false);
       return;
@@ -111,6 +114,7 @@ class _RegisterPageState extends State<RegisterPage> {
     if (!_privacyPolicyAccepted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
+          behavior: SnackBarBehavior.floating,
           content: Text(
             "Devam etmek için gizlilik politikasını onaylamalısınız.",
           ),
@@ -122,9 +126,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
     // Şifrelerin eşleşip eşleşmediğini kontrol et
     if (password != confirmPassword) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Şifreler eşleşmiyor")));
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          behavior: SnackBarBehavior.floating,
+          content: Text("Şifreler eşleşmiyor"),
+        ),
+      );
       setState(() => _isLoading = false);
       return;
     }
@@ -165,9 +172,12 @@ class _RegisterPageState extends State<RegisterPage> {
       }
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Hata: ${e.toString()}")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            content: Text("Hata: ${e.toString()}"),
+          ),
+        );
       }
     } finally {
       if (mounted) {
@@ -433,12 +443,10 @@ class SignInNavigateButton extends StatelessWidget {
       children: [
         GestureDetector(
           onTap: () {
-            /*/ 🔄 Yorumu kaldırdım, AuthGate'e gitmesi mantıklı
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => const AuthGate()),
             );
-          */
           },
 
           child: Row(

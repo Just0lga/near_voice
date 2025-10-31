@@ -4,6 +4,8 @@ import 'package:near_voice/core/helpers/auth_gate.dart';
 import 'package:near_voice/core/helpers/auth_service.dart';
 import 'package:near_voice/core/widgets/app_text.dart';
 import 'package:near_voice/core/widgets/gradient_background.dart';
+import 'package:near_voice/data/services/user_service.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class SettingsPage extends StatefulWidget {
   const SettingsPage({super.key});
@@ -14,10 +16,34 @@ class SettingsPage extends StatefulWidget {
 
 class _SettingsPageState extends State<SettingsPage> {
   final authService = AuthService();
+  Map<String, dynamic>? userData;
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    loadUserData();
+  }
 
   void logout() async {
     await authService.signOut();
     Navigator.pop(context);
+  }
+
+  Future<void> loadUserData() async {
+    final authUser = Supabase.instance.client.auth.currentUser;
+    if (authUser == null) return;
+
+    final details = await UserService().getCurrentUserDetails();
+
+    setState(() {
+      userData = {
+        'email': authUser.email,
+        ...?details,
+        ...?authUser.userMetadata,
+      };
+      isLoading = false;
+    });
   }
 
   @override
@@ -162,14 +188,15 @@ class _SettingsPageState extends State<SettingsPage> {
                       SettingsButton(
                         iconData: Icons.location_on_outlined,
                         title: 'Uzaklık',
-                        subtitle: '5 km',
+                        subtitle: userData?["max_distance"].toString() ?? "",
                         onTap: () {},
                       ),
 
                       SettingsButton(
                         iconData: Icons.person_2_outlined,
                         title: 'Yaş Aralığı',
-                        subtitle: '18 - 35',
+                        subtitle:
+                            "${userData?["min_age"].toString()} - ${userData?["max_age"].toString()}",
                         onTap: () {},
                       ),
 

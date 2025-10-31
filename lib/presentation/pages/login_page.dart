@@ -24,7 +24,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   void initState() {
     _emailController.text = "berfintugal@gmail.com";
-    _passwordController.text = "1234zxcv";
+    _passwordController.text = "zxcv1234";
     super.initState();
   }
 
@@ -36,9 +36,12 @@ class _LoginPageState extends State<LoginPage> {
       await authService.signInWithEmailAndPassword(email, password);
     } catch (e) {
       if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: AppText(text: "Error: $e")));
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            behavior: SnackBarBehavior.floating,
+            content: AppText(text: "Error: $e"),
+          ),
+        );
       }
     }
   }
