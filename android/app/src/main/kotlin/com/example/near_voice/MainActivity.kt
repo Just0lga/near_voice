@@ -1,4 +1,4 @@
-package com.example.near_voice
+package com.justolga.near_voice
 
 import io.flutter.embedding.android.FlutterActivity
 

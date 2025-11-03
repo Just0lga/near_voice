@@ -8,7 +8,7 @@
 PRODUCT_NAME = near_voice
 
 // The application's bundle identifier
-PRODUCT_BUNDLE_IDENTIFIER = com.example.nearVoice
+PRODUCT_BUNDLE_IDENTIFIER = com.justolga.near_voice
 
 // The copyright displayed in application information
-PRODUCT_COPYRIGHT = Copyright © 2025 com.example. All rights reserved.
+PRODUCT_COPYRIGHT = Copyright © 2025 com.justolga. All rights reserved.
