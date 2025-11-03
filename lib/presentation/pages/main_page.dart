@@ -6,6 +6,7 @@ import 'package:near_voice/core/widgets/app_text.dart';
 import 'package:flutter/material.dart';
 import 'package:near_voice/core/widgets/gradient_background.dart';
 import 'package:near_voice/data/services/user_service.dart';
+import 'package:near_voice/data/services/user_location_updater.dart'; // 🔹 EKLENDİ
 import 'package:near_voice/presentation/pages/profile_page.dart';
 import 'package:near_voice/presentation/pages/settings_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -24,6 +25,7 @@ class _MainPageState extends State<MainPage> {
   List<Map<String, dynamic>?> usersData = [];
 
   bool isLoading = true;
+  UserLocationUpdater? locationUpdater;
 
   void onItemTapped(int index) {
     setState(() {
@@ -38,11 +40,13 @@ class _MainPageState extends State<MainPage> {
     loadUsersData();
   }
 
+  /// 🟢 Giriş yapan kullanıcının verilerini al ve konum güncellemesini başlat
   Future<void> loadUserData() async {
     final authUser = Supabase.instance.client.auth.currentUser;
     if (authUser == null) return;
 
     final details = await UserService().getCurrentUserDetails();
+    if (details == null) return;
 
     setState(() {
       userData = {
@@ -52,8 +56,15 @@ class _MainPageState extends State<MainPage> {
       };
       isLoading = false;
     });
+
+    // 🔹 Kullanıcının kendi konum güncellemesini başlat
+    final userId = details['id'] as int;
+    locationUpdater?.stopAutoUpdate();
+    locationUpdater = UserLocationUpdater(userId: userId);
+    locationUpdater!.startAutoUpdate();
   }
 
+  /// 🔵 Tüm kullanıcıların verilerini çek
   Future<void> loadUsersData() async {
     final authUser = Supabase.instance.client.auth.currentUser;
     if (authUser == null) return;
@@ -68,11 +79,17 @@ class _MainPageState extends State<MainPage> {
   }
 
   @override
+  void dispose() {
+    locationUpdater?.stopAutoUpdate(); // 🔹 Otomatik güncellemeyi durdur
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
-    // TÜM KULLANICILARIN MARKER'LARINI OLUŞTUR
+    // 🔹 TÜM KULLANICILARIN MARKER'LARINI OLUŞTUR
     List<Marker> markers = usersData
         .where(
           (user) =>
@@ -91,14 +108,15 @@ class _MainPageState extends State<MainPage> {
               height: width * 0.02,
               decoration: BoxDecoration(
                 color: AppColor.purple900,
-                borderRadius: BorderRadius.circular(width),
+                borderRadius: BorderRadius.circular(0),
               ),
+              alignment: Alignment.center,
+              child: AppText(text: user["user_name"]),
             ),
           );
         })
         .toList();
 
-    // Get current user
     final currentEmail = authService.getCurrentUserEmail();
     final currentToken = authService.getAuth();
     print("Bearer $currentToken");
@@ -132,7 +150,6 @@ class _MainPageState extends State<MainPage> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       SizedBox(width: width * 0.01),
                                       Icon(
@@ -162,9 +179,7 @@ class _MainPageState extends State<MainPage> {
                                   ),
                                 ],
                               ),
-
-                              Expanded(child: SizedBox()),
-
+                              const Spacer(),
                               Container(
                                 width: width * 0.1,
                                 height: width * 0.1,
@@ -210,19 +225,16 @@ class _MainPageState extends State<MainPage> {
                                   ),
                                 ],
                               ),
-
                               SizedBox(height: height * 0.02),
-
                               SizedBox(
                                 height: height * 0.6,
                                 child: Container(
                                   decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(
                                       width * 0.03,
-                                    ), // 🔹 Köşe yuvarlama
+                                    ),
                                   ),
-                                  clipBehavior: Clip
-                                      .hardEdge, // 🔸 Kenar dışına taşmayı engeller
+                                  clipBehavior: Clip.hardEdge,
                                   child: FlutterMap(
                                     options: MapOptions(
                                       initialCenter: markers.isNotEmpty
@@ -247,6 +259,7 @@ class _MainPageState extends State<MainPage> {
                       ),
                     ),
 
+                    // 🔹 Bottom Nav
                     Container(
                       width: width,
                       height: height * 0.12,
@@ -280,7 +293,7 @@ class _MainPageState extends State<MainPage> {
                               ),
                               NavigationBarItem(
                                 onTap: () {
-                                  () => onItemTapped(2);
+                                  onItemTapped(2);
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -292,7 +305,6 @@ class _MainPageState extends State<MainPage> {
                                 text: "Profil",
                                 isSelected: selectedIndex == 2,
                               ),
-
                               NavigationBarItem(
                                 onTap: () {
                                   onItemTapped(3);

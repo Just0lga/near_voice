@@ -66,6 +66,22 @@ class UserService {
     print('deleteUser → $response');
   }
 
+  Future<void> updateLocation({
+    required int id,
+    required double latitude,
+    required double longitude,
+  }) async {
+    final response = await _client
+        .from('user')
+        .update({
+          'latitude': latitude,
+          'longitude': longitude,
+          'updated_at': DateTime.now().toIso8601String(),
+        })
+        .eq('id', id);
+    print('updated location → $response');
+  }
+
   /// 🔹 Yeni alanlar için ayrı update fonksiyonları
 
   Future<void> updateAbout({required int id, required String about}) async {
