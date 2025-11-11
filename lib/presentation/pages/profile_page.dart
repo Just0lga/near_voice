@@ -4,6 +4,7 @@ import 'package:near_voice/core/helpers/auth_gate.dart';
 import 'package:near_voice/core/widgets/app_text.dart';
 import 'package:near_voice/core/widgets/gradient_background.dart';
 import 'package:near_voice/data/services/user_service.dart';
+import 'package:near_voice/presentation/pages/edit_pictures_page.dart';
 import 'package:near_voice/presentation/pages/profile_about_edit_page.dart';
 import 'package:near_voice/presentation/pages/profile_interests_edit_page.dart';
 import 'package:near_voice/presentation/pages/profile_main_edit_page.dart';
@@ -131,7 +132,16 @@ class _ProfilePageState extends State<ProfilePage> {
                               textFontSize: width * 0.035,
                               textHeight: 1,
                             ),
-                            EditButton(onTap: () {}),
+                            EditButton(
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => EditPicturesPage(),
+                                  ),
+                                );
+                              },
+                            ),
                           ],
                         ),
 
