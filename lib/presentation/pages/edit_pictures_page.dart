@@ -2,10 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:near_voice/core/constants/app_color.dart';
 import 'package:near_voice/core/widgets/app_text.dart';
 import 'package:near_voice/core/widgets/gradient_background.dart';
-import 'package:near_voice/core/widgets/sign_button.dart';
-import 'package:near_voice/core/helpers/auth_gate.dart';
+// 👈 Bu import'lara artık gerek yok, silebilirsin
+// import 'package:near_voice/core/widgets/sign_button.dart';
+// import 'package:near_voice/core/helpers/auth_gate.dart';
+// import 'package:near_voice/data/services/user_service.dart';
 import 'package:near_voice/data/services/photo_service.dart';
-import 'package:near_voice/data/services/user_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EditPicturesPage extends StatefulWidget {
@@ -19,7 +20,7 @@ class _EditPicturesPageState extends State<EditPicturesPage> {
   final photoService = PhotoService();
   List<Map<String, dynamic>> photos = [];
   bool isLoading = true;
-  bool _isUploading = false; // 👈 1. YENİ STATE DEĞİŞKENİ
+  bool _isUploading = false;
 
   Future<void> loadPhotos() async {
     final user = Supabase.instance.client.auth.currentUser;
@@ -32,29 +33,26 @@ class _EditPicturesPageState extends State<EditPicturesPage> {
     });
   }
 
-  // 👈 2. ADDPHOTO METODU GÜNCELLENDİ
   Future<void> addPhoto() async {
     final user = Supabase.instance.client.auth.currentUser;
     if (user == null) return;
 
     setState(() {
-      _isUploading = true; // Yüklemeyi başlat
+      _isUploading = true;
     });
 
     try {
       final url = await photoService.uploadPhoto(user.id);
       if (url != null) {
-        await loadPhotos(); // Yükleme başarılıysa fotoğrafları yenile
+        await loadPhotos();
       }
     } catch (e) {
-      // photoService'de hata yakalama zaten var ama burada da ekleyebiliriz
       if (mounted) {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text('Fotoğraf yüklenemedi: $e')));
       }
     } finally {
-      // Hata alsa da almasa da yüklemeyi bitir
       if (mounted) {
         setState(() {
           _isUploading = false;
@@ -79,12 +77,11 @@ class _EditPicturesPageState extends State<EditPicturesPage> {
     double width = MediaQuery.of(context).size.width;
     double height = MediaQuery.of(context).size.height;
 
-    // Bu if bloğu sadece sayfa ilk açıldığındaki yükleme içindir
     if (isLoading) {
-      return const Scaffold(
+      return Scaffold(
         body: GradientBackground(
           linearGradient: AppColor.backgroundGradient,
-          child: Center(child: CircularProgressIndicator()),
+          child: const Center(child: CircularProgressIndicator()),
         ),
       );
     }
@@ -117,8 +114,8 @@ class _EditPicturesPageState extends State<EditPicturesPage> {
                               onTap: () => Navigator.pop(context),
                               child: Container(
                                 color: Colors.transparent,
-                                padding: EdgeInsets.all(4),
-                                child: Icon(
+                                padding: const EdgeInsets.all(4),
+                                child: const Icon(
                                   Icons.arrow_back_ios_new,
                                   color: AppColor.white60,
                                 ),
@@ -142,15 +139,13 @@ class _EditPicturesPageState extends State<EditPicturesPage> {
                 ),
               ),
 
-              // 👈 3. LİNEER PROGRESS BAR EKLENDİ
+              // 🔹 Linear Progress Bar (Aynı)
               if (_isUploading)
                 const LinearProgressIndicator(
-                  color: AppColor.purple500, // Temana uygun bir renk
+                  color: AppColor.purple500,
                   backgroundColor: AppColor.white10,
                 )
               else
-                // Yükleme yokken, indicator'ün yüksekliği kadar (varsayılan 4.0)
-                // bir boşluk bırak ki ekran "zıplamasın".
                 const SizedBox(height: 4.0),
 
               // 🟣 Body
@@ -163,82 +158,91 @@ class _EditPicturesPageState extends State<EditPicturesPage> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
-                      Expanded(
-                        child: GridView.builder(
-                          padding: const EdgeInsets.all(12),
-                          gridDelegate:
-                              const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 3,
-                                crossAxisSpacing: 8,
-                                mainAxisSpacing: 8,
-                              ),
+                      SizedBox(
+                        height: width * 0.6, // 📌 Fotoğrafın yüksekliği
+                        child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           itemCount: photos.length,
                           itemBuilder: (context, index) {
                             final photo = photos[index];
-                            return Stack(
-                              fit: StackFit.expand,
-                              children: [
-                                Image.network(
-                                  photo['photo_url'],
-                                  fit: BoxFit.cover,
-                                  // 👈 Resim yüklenirken de bir indicator gösterelim
-                                  loadingBuilder:
-                                      (
-                                        BuildContext context,
-                                        Widget child,
-                                        ImageChunkEvent? loadingProgress,
-                                      ) {
-                                        if (loadingProgress == null)
-                                          return child;
-                                        return Center(
-                                          child: CircularProgressIndicator(
-                                            color: AppColor.purple400,
-                                            value:
-                                                loadingProgress
-                                                        .expectedTotalBytes !=
-                                                    null
-                                                ? loadingProgress
-                                                          .cumulativeBytesLoaded /
+
+                            return Container(
+                              width: width, // 📌 Ekran genişliği kadar
+                              margin: const EdgeInsets.only(right: 10),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(12),
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    // 📌 AspectRatio ile fotoğrafın bozulmasını önlüyoruz
+                                    AspectRatio(
+                                      aspectRatio:
+                                          1, // 📌 Kare yapmak için veya fotoğrafa göre ayarla
+                                      child: Image.network(
+                                        photo['photo_url'],
+                                        fit: BoxFit
+                                            .cover, // 📌 Bozulmasın, ekranı doldursun
+                                        loadingBuilder:
+                                            (
+                                              BuildContext context,
+                                              Widget child,
+                                              ImageChunkEvent? loadingProgress,
+                                            ) {
+                                              if (loadingProgress == null)
+                                                return child;
+                                              return Center(
+                                                child: CircularProgressIndicator(
+                                                  color: AppColor.purple400,
+                                                  value:
                                                       loadingProgress
-                                                          .expectedTotalBytes!
-                                                : null,
-                                          ),
-                                        );
-                                      },
-                                ),
-                                Positioned(
-                                  top: 4,
-                                  right: 4,
-                                  child: GestureDetector(
-                                    onTap: () => deletePhoto(
-                                      photo['id'],
-                                      photo['photo_url'],
-                                    ),
-                                    child: const CircleAvatar(
-                                      radius: 14,
-                                      backgroundColor: Colors.black54,
-                                      child: Icon(
-                                        Icons.close,
-                                        size: 16,
-                                        color: Colors.white,
+                                                              .expectedTotalBytes !=
+                                                          null
+                                                      ? loadingProgress
+                                                                .cumulativeBytesLoaded /
+                                                            loadingProgress
+                                                                .expectedTotalBytes!
+                                                      : null,
+                                                ),
+                                              );
+                                            },
                                       ),
                                     ),
-                                  ),
+                                    Positioned(
+                                      top: 4,
+                                      right: 4,
+                                      child: GestureDetector(
+                                        onTap: () => deletePhoto(
+                                          photo['id'],
+                                          photo['photo_url'],
+                                        ),
+                                        child: const CircleAvatar(
+                                          radius: 14,
+                                          backgroundColor: Colors.black54,
+                                          child: Icon(
+                                            Icons.close,
+                                            size: 16,
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             );
                           },
                         ),
                       ),
-                      // 👈 4. BUTON GÜNCELLENDİ
+
+                      const Spacer(), // 👈 EKLENDİ: Butonu aşağı itmek için
+                      // 🔹 Buton (Aynı)
                       ElevatedButton.icon(
-                        // Yükleme varsa veya fotoğraf limiti doluysa butonu pasif yap
                         onPressed: (photos.length < 3 && !_isUploading)
                             ? addPhoto
                             : null,
                         icon: const Icon(Icons.add),
                         label: Text(
-                          // Yükleme varsa metni değiştir
                           _isUploading ? 'Yükleniyor...' : 'Yeni Fotoğraf Ekle',
                         ),
                         style: ElevatedButton.styleFrom(
