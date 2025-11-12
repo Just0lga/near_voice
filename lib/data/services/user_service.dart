@@ -158,4 +158,36 @@ class UserService {
     print("User: $response");
     return response;
   }
+
+  /// 🔹 Supabase RPC ile filtreli kullanıcıları getir
+  Future<List<Map<String, dynamic>>> getFilteredUsers() async {
+    final currentUser = await getCurrentUserDetails();
+    if (currentUser == null) return [];
+
+    final currentUserId = currentUser['id'] as int;
+    final userLat = currentUser['latitude'] as num;
+    final userLon = currentUser['longitude'] as num;
+    final minAge = currentUser['min_age'] as int? ?? 18;
+    final maxAge = currentUser['max_age'] as int? ?? 36;
+    final maxDistance = currentUser['max_distance'] as num? ?? 50;
+
+    final response = await _client.rpc(
+      'get_filtered_users',
+      params: {
+        'current_user_id': currentUserId,
+        'user_lat': userLat,
+        'user_lon': userLon,
+        'min_age': minAge,
+        'max_age': maxAge,
+        'max_distance': maxDistance,
+      },
+    );
+
+    if (response.error != null) {
+      print('RPC Error: ${response.error!.message}');
+      return [];
+    }
+
+    return List<Map<String, dynamic>>.from(response.data as List<dynamic>);
+  }
 }

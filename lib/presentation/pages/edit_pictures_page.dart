@@ -2,10 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:near_voice/core/constants/app_color.dart';
 import 'package:near_voice/core/widgets/app_text.dart';
 import 'package:near_voice/core/widgets/gradient_background.dart';
-// 👈 Bu import'lara artık gerek yok, silebilirsin
-// import 'package:near_voice/core/widgets/sign_button.dart';
-// import 'package:near_voice/core/helpers/auth_gate.dart';
-// import 'package:near_voice/data/services/user_service.dart';
+import 'package:near_voice/core/widgets/sign_button.dart';
 import 'package:near_voice/data/services/photo_service.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -93,7 +90,7 @@ class _EditPicturesPageState extends State<EditPicturesPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              // 🔹 Header (Aynı)
+              // 🔹 Header
               Container(
                 width: width,
                 decoration: BoxDecoration(
@@ -139,14 +136,16 @@ class _EditPicturesPageState extends State<EditPicturesPage> {
                 ),
               ),
 
-              // 🔹 Linear Progress Bar (Aynı)
+              // 🔹 Linear Progress Bar
               if (_isUploading)
-                const LinearProgressIndicator(
-                  color: AppColor.purple500,
-                  backgroundColor: AppColor.white10,
+                Center(
+                  child: const LinearProgressIndicator(
+                    color: AppColor.purple500,
+                    backgroundColor: AppColor.white10,
+                  ),
                 )
               else
-                const SizedBox(height: 4.0),
+                const SizedBox(),
 
               // 🟣 Body
               Expanded(
@@ -159,16 +158,17 @@ class _EditPicturesPageState extends State<EditPicturesPage> {
                     mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       SizedBox(
-                        height: width * 0.6, // 📌 Fotoğrafın yüksekliği
+                        height: width * 1.25,
                         child: ListView.builder(
                           scrollDirection: Axis.horizontal,
+                          physics: const ClampingScrollPhysics(),
                           padding: const EdgeInsets.symmetric(vertical: 12),
                           itemCount: photos.length,
                           itemBuilder: (context, index) {
                             final photo = photos[index];
 
                             return Container(
-                              width: width, // 📌 Ekran genişliği kadar
+                              width: width * 0.94, // 📌 Padding'leri hesaba kat
                               margin: const EdgeInsets.only(right: 10),
                               child: ClipRRect(
                                 borderRadius: BorderRadius.circular(12),
@@ -177,12 +177,10 @@ class _EditPicturesPageState extends State<EditPicturesPage> {
                                   children: [
                                     // 📌 AspectRatio ile fotoğrafın bozulmasını önlüyoruz
                                     AspectRatio(
-                                      aspectRatio:
-                                          1, // 📌 Kare yapmak için veya fotoğrafa göre ayarla
+                                      aspectRatio: 4 / 5,
                                       child: Image.network(
                                         photo['photo_url'],
-                                        fit: BoxFit
-                                            .cover, // 📌 Bozulmasın, ekranı doldursun
+                                        fit: BoxFit.cover,
                                         loadingBuilder:
                                             (
                                               BuildContext context,
@@ -234,26 +232,19 @@ class _EditPicturesPageState extends State<EditPicturesPage> {
                           },
                         ),
                       ),
-
-                      const Spacer(), // 👈 EKLENDİ: Butonu aşağı itmek için
-                      // 🔹 Buton (Aynı)
-                      ElevatedButton.icon(
-                        onPressed: (photos.length < 3 && !_isUploading)
-                            ? addPhoto
-                            : null,
-                        icon: const Icon(Icons.add),
-                        label: Text(
-                          _isUploading
-                              ? 'Yükleniyor...'
-                              : 'Yeni Fotoğraf Eklerr',
-                        ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColor.purple500,
-                          foregroundColor: Colors.white,
-                          disabledBackgroundColor: AppColor.slate800,
-                        ),
-                      ),
-                      const SizedBox(height: 12),
+                      SizedBox(height: 12),
+                      photos.length < 3
+                          ? SignButton(
+                              onTap: isLoading
+                                  ? () {}
+                                  : (photos.length < 3 && !_isUploading)
+                                  ? addPhoto
+                                  : () {},
+                              text: _isUploading
+                                  ? 'Yükleniyor...'
+                                  : 'Yeni Fotoğraf Ekle',
+                            )
+                          : SizedBox(),
                     ],
                   ),
                 ),

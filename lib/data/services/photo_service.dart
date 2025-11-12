@@ -1,6 +1,6 @@
-// 'image' paketini artık burada import etmene gerek kalmadı.
-// import 'package:image/image.dart' as img;
 import 'dart:typed_data'; // Byte listesi (Uint8List) için bu gerekli
+import 'package:flutter/material.dart'; // Renkler için eklendi
+import 'package:image_cropper/image_cropper.dart'; // <-- 1. YENİ IMPORT
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -8,7 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class PhotoService {
   final SupabaseClient _client = Supabase.instance.client;
 
-  /// 📤 Fotoğraf yükle (Sıkıştırma ve Boyutlandırma image_picker ile yapılıyor)
+  /// 📤 Fotoğraf yükle (Sıkıştırma, Boyutlandırma ve 4:5 Kırpma)
   Future<String?> uploadPhoto(String userId) async {
     try {
       // 1. Mevcut foto sayısını kontrol et (Aynı)
@@ -21,42 +21,67 @@ class PhotoService {
         throw Exception('Maksimum 3 fotoğraf yükleyebilirsin.');
       }
 
-      // 2. Galeriden fotoğraf seç (❗️ BURASI GÜNCELLENDİ)
+      // 2. Galeriden fotoğraf seç (❗️ AYARLAR KALDIRILDI)
       final picker = ImagePicker();
       final XFile? picked = await picker.pickImage(
         source: ImageSource.gallery,
-
-        // 🌟 SİHİRLİ SATIRLAR 🌟
-        maxWidth: 1080.0, // 👈 Genişliği 1080px ile sınırla (oranı korur)
-        imageQuality: 85, // 👈 Kaliteyi %85 yap (ve HEIC'i JPG'ye dönüştür)
+        // maxWidth ve imageQuality ayarları buradan kaldırıldı.
+        // Bu işlemleri cropper'da yapacağız.
       );
 
-      if (picked == null) return null;
+      if (picked == null) return null; // Kullanıcı seçim yapmadı
 
-      // 3. ❗️ DEĞİŞİKLİK ❗️
-      // 'image' paketiyle yaptığımız decode/resize/encode adımlarının
-      // tamamı SİLİNDİ.
-      // Çünkü 'picked' dosyası artık 'image_picker' sayesinde
-      // zaten 1080px genişliğinde ve %85 kalitede bir JPEG dosyası.
+      // 3. 🌟 YENİ ADIM: FOTOĞRAFI KIRPMA (4:5 ORANINDA) 🌟
+      final CroppedFile? croppedFile = await ImageCropper().cropImage(
+        sourcePath: picked.path,
+        // İstenen 4:5 oranı ve sıkıştırma kalitesi
+        aspectRatio: const CropAspectRatio(ratioX: 4, ratioY: 5),
+        compressQuality: 85, // Kaliteyi %85 yap
+        maxWidth: 1080, // Genişliği 1080px ile sınırla
+        // Kırpma arayüzünün görünüm ayarları (Opsiyonel ama güzel)
+        uiSettings: [
+          AndroidUiSettings(
+            toolbarTitle: 'Fotoğrafı Kırp',
+            toolbarColor: const Color(0xFF0F172A), // slate900
+            toolbarWidgetColor: Colors.white,
+            initAspectRatio: CropAspectRatioPreset.ratio4x3, // İlk açılış
+            lockAspectRatio: true, // Oranı kilitle (Sadece 4:5)
+            activeControlsWidgetColor: const Color(0xFFA855F7), // purple500
+          ),
+          IOSUiSettings(
+            title: 'Fotoğrafı Kırp',
+            aspectRatioPickerButtonHidden: true,
+            aspectRatioLockEnabled: true,
+            resetAspectRatioEnabled: false,
+            aspectRatioLockDimensionSwapEnabled: true,
+            rectX: 4, // 4:5 oranını direkt uygula
+            rectY: 5,
+          ),
+        ],
+      );
 
-      // 4. Sıkıştırılmış/Boyutlandırılmış dosyanın byte'larını oku
-      final Uint8List fileBytes = await picked.readAsBytes();
+      // 4. Kullanıcı kırpmayı iptal ederse
+      if (croppedFile == null) return null;
 
-      // 5. Dosya adını ve yolunu belirle
-      // picked.path artık .jpg veya .jpeg uzantılı olacaktır.
-      final fileExtension = extension(picked.path);
+      // 5. Kırpılmış dosyanın byte'larını oku
+      final Uint8List fileBytes = await croppedFile.readAsBytes();
+
+      // 6. Dosya adını ve yolunu belirle
+      final fileExtension = extension(
+        croppedFile.path,
+      ); // Kırpılan dosyanın yolunu kullan
       final fileName =
           '${userId}_${DateTime.now().millisecondsSinceEpoch}$fileExtension';
 
-      // 6. Storage’a 'uploadBinary' ile yükle (Aynı)
+      // 7. Storage’a 'uploadBinary' ile yükle (Aynı)
       await _client.storage
           .from('user_photos')
           .uploadBinary(fileName, fileBytes);
 
-      // 7. Public URL oluştur (Aynı)
+      // 8. Public URL oluştur (Aynı)
       final url = _client.storage.from('user_photos').getPublicUrl(fileName);
 
-      // 8. Veritabanına kaydet (Aynı)
+      // 9. Veritabanına kaydet (Aynı)
       await _client.from('user_photos').insert({
         'auth_user_id': userId,
         'photo_url': url,

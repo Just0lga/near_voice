@@ -4,6 +4,7 @@ import 'package:near_voice/core/helpers/auth_gate.dart';
 import 'package:near_voice/core/widgets/app_text.dart';
 import 'package:near_voice/core/widgets/gradient_background.dart';
 import 'package:near_voice/data/services/user_service.dart';
+import 'package:near_voice/data/services/photo_service.dart';
 import 'package:near_voice/presentation/pages/edit_pictures_page.dart';
 import 'package:near_voice/presentation/pages/profile_about_edit_page.dart';
 import 'package:near_voice/presentation/pages/profile_interests_edit_page.dart';
@@ -19,12 +20,14 @@ class ProfilePage extends StatefulWidget {
 
 class _ProfilePageState extends State<ProfilePage> {
   Map<String, dynamic>? userData;
+  List<Map<String, dynamic>> photos = [];
   bool isLoading = true;
 
   @override
   void initState() {
     super.initState();
     loadUserData();
+    loadPhotos();
   }
 
   Future<void> loadUserData() async {
@@ -40,6 +43,16 @@ class _ProfilePageState extends State<ProfilePage> {
         ...?authUser.userMetadata,
       };
       isLoading = false;
+    });
+  }
+
+  Future<void> loadPhotos() async {
+    final user = Supabase.instance.client.auth.currentUser;
+    if (user == null) return;
+
+    final data = await PhotoService().getUserPhotos(user.id);
+    setState(() {
+      photos = data;
     });
   }
 
@@ -68,7 +81,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 alignment: Alignment.bottomCenter,
                 child: SafeArea(
-                  bottom: false, // altta fazladan boşluk olmasın
+                  bottom: false,
                   child: Padding(
                     padding: EdgeInsets.symmetric(vertical: width * 0.03),
                     child: Stack(
@@ -133,13 +146,15 @@ class _ProfilePageState extends State<ProfilePage> {
                               textHeight: 1,
                             ),
                             EditButton(
-                              onTap: () {
-                                Navigator.push(
+                              onTap: () async {
+                                await Navigator.push(
                                   context,
                                   MaterialPageRoute(
                                     builder: (context) => EditPicturesPage(),
                                   ),
                                 );
+                                // Sayfa geri döndüğünde fotoğrafları yenile
+                                loadPhotos();
                               },
                             ),
                           ],
@@ -161,38 +176,62 @@ class _ProfilePageState extends State<ProfilePage> {
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Container(
+                            children: List.generate(3, (index) {
+                              return Container(
                                 width: width * 0.27,
                                 decoration: BoxDecoration(
-                                  color: Colors.white,
+                                  color: index < photos.length
+                                      ? Colors.transparent
+                                      : AppColor.white10,
                                   borderRadius: BorderRadius.circular(
                                     width * 0.02,
                                   ),
                                   border: Border.all(color: AppColor.white10),
                                 ),
-                              ),
-                              Container(
-                                width: width * 0.27,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(
-                                    width * 0.02,
-                                  ),
-                                  border: Border.all(color: AppColor.white10),
-                                ),
-                              ),
-                              Container(
-                                width: width * 0.27,
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(
-                                    width * 0.02,
-                                  ),
-                                  border: Border.all(color: AppColor.white10),
-                                ),
-                              ),
-                            ],
+                                child: index < photos.length
+                                    ? ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                          width * 0.02,
+                                        ),
+                                        child: Image.network(
+                                          photos[index]['photo_url'],
+                                          fit: BoxFit.cover,
+                                          loadingBuilder:
+                                              (
+                                                BuildContext context,
+                                                Widget child,
+                                                ImageChunkEvent?
+                                                loadingProgress,
+                                              ) {
+                                                if (loadingProgress == null) {
+                                                  return child;
+                                                }
+                                                return Center(
+                                                  child: CircularProgressIndicator(
+                                                    color: AppColor.purple400,
+                                                    value:
+                                                        loadingProgress
+                                                                .expectedTotalBytes !=
+                                                            null
+                                                        ? loadingProgress
+                                                                  .cumulativeBytesLoaded /
+                                                              loadingProgress
+                                                                  .expectedTotalBytes!
+                                                        : null,
+                                                  ),
+                                                );
+                                              },
+                                        ),
+                                      )
+                                    : Center(
+                                        child: Icon(
+                                          Icons.add_photo_alternate_outlined,
+                                          color: AppColor.white40,
+                                          size: width * 0.08,
+                                        ),
+                                      ),
+                              );
+                            }),
                           ),
                         ),
 
@@ -256,17 +295,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                 subtitle: "${userData?['birth_date'] ?? '-'}",
                                 iconData: Icons.date_range,
                               ),
-                              /*
-                              ProfileInfoRow(
-                                title: "Latitude ",
-                                subtitle: "${userData?['latitude'] ?? '-'}",
-                                iconData: Icons.one_x_mobiledata,
-                              ),
-                              ProfileInfoRow(
-                                title: "Longitude ",
-                                subtitle: "${userData?['longitude'] ?? '-'}",
-                                iconData: Icons.one_x_mobiledata,
-                              ),*/
                             ],
                           ),
                         ),
@@ -422,7 +450,6 @@ class InterestsSection extends StatelessWidget {
       );
     }
 
-    // 🔸 Listeyi 3’lü gruplara böl
     List<List<String>> grouped = [];
     for (var i = 0; i < interests.length; i += 3) {
       grouped.add(
