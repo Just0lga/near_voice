@@ -243,7 +243,9 @@ class _EditPicturesPageState extends State<EditPicturesPage> {
                             : null,
                         icon: const Icon(Icons.add),
                         label: Text(
-                          _isUploading ? 'Yükleniyor...' : 'Yeni Fotoğraf Ekle',
+                          _isUploading
+                              ? 'Yükleniyor...'
+                              : 'Yeni Fotoğraf Eklerr',
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColor.purple500,
